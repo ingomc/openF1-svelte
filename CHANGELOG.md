@@ -1,6 +1,6 @@
 # Changelog
 
-**🌐 Live Demo:** [openF1-svelte auf GitHub Pages](https://andre.github.io/openF1-svelte/)
+**🌐 Live Demo:** [openF1-svelte auf GitHub Pages](https://ingomc.github.io/openF1-svelte/)
 
 All notable changes to the Formula 1 Dashboard project will be documented in this file.
 

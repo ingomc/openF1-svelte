@@ -1,6 +1,6 @@
 # OpenF1 Svelte Frontend
 
-**🌐 Live Demo:** [openF1-svelte auf GitHub Pages](https://andre.github.io/openF1-svelte/)
+**🌐 Live Demo:** [openF1-svelte auf GitHub Pages](https://ingomc.github.io/openF1-svelte/)
 
 Ein modernes Svelte + TypeScript Frontend, das die OpenF1 API nutzt, um einen interaktiven Formel-1-Kalender anzuzeigen.
 
