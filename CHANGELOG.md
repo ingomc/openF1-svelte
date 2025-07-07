@@ -5,9 +5,11 @@ All notable changes to the Formula 1 Dashboard project will be documented in thi
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.0] - 2025-07-07
+## [1.0.0] - 2025-07-07
 
-### 🎨 Added
+### 🚀 Major Release - Complete F1 Dashboard
+
+#### 🎨 Added
 - **Multi-Tab Interface** with 5 comprehensive sections:
   - 📅 **Kalender** - Race calendar with upcoming and past races
   - 🏆 **Tabellen** - Driver and constructor standings
@@ -15,9 +17,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - 🏁 **Strecken** - Circuit information with track maps
   - 📊 **Statistiken** - Fastest laps and historical data
 
-### 🖼️ Enhanced
+#### 🖼️ Enhanced
 - **Official F1 Driver Images** using Formula 1's media API
 - **Real Circuit Track Maps** from Wikipedia/Wikimedia Commons
+- **Team Badges** with SVG graphics and official colors
+- **Country Flags** for drivers and circuits
+- **Responsive Design** with consistent container widths
+- **Modern UI** with hover effects and smooth transitions
+
+#### 🔧 Technical
+- **Ergast API Integration** for comprehensive F1 data
+- **TypeScript** throughout the application
+- **Svelte 5** with modern component architecture
+- **Utility Functions** for data formatting and validation
+- **Error Handling** for missing/invalid data (NaN → "N/A")
+- **Image Loading** with lazy loading and fallbacks
+- **Unit Tests** with Vitest for utility functions
+
+#### 📦 Build & Development
+- **Semantic Versioning** with conventional commits
+- **Commitlint** for commit message validation
+- **Husky** git hooks for pre-commit testing
+- **Standard-Version** for automated releases
+- **Commitizen** for interactive commit messages
+
+#### 🎯 Features
+- Race calendar with session details and results
+- Driver and constructor standings with points
+- Driver profiles with career statistics
+- Circuit information with track characteristics
+- Fastest lap statistics and historical data
+- Responsive design for all screen sizes
+- Error handling and graceful degradation
+
+---
 - **Professional Team Logos** with custom SVG badges
 - **Smart Image Fallbacks** with loading states and error handling
 - **Responsive Image Loading** with caching system
