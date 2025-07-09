@@ -2,13 +2,53 @@
 
 export interface F1ImageUrls {
   driver?: string;
+  driverAvatar?: string; // Generated avatar fallback
   circuit?: string;
   team?: string;
   helmet?: string;
   trackMap?: string;
 }
 
-// Driver photos - Using official Formula 1 media API
+// Function to generate driver avatar with initials
+function generateDriverAvatar(givenName?: string, familyName?: string, nationality?: string): string {
+  const initials = [givenName?.[0], familyName?.[0]].filter(Boolean).join('') || '?';
+  
+  // Color scheme based on nationality for visual consistency
+  const nationalityColors: Record<string, string> = {
+    'Netherlands': '#FF6B35',
+    'British': '#E63946',
+    'German': '#FFC233',
+    'Spanish': '#FF006E',
+    'Mexican': '#8AC926',
+    'French': '#4895EF',
+    'Canadian': '#F72585',
+    'Australian': '#90E0EF',
+    'Japanese': '#F77F00',
+    'Finnish': '#560BAD',
+    'Danish': '#FB8500',
+    'Thai': '#FFBE0B',
+    'Chinese': '#DC2F02',
+    'American': '#0077B6',
+    'Monégasque': '#F72585',
+    'Italian': '#06D6A0',
+    'Belgian': '#F8961E',
+    'Swiss': '#6A4C93'
+  };
+
+  const backgroundColor = nationalityColors[nationality || ''] || '#6C757D';
+  
+  const svgContent = `
+    <svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="200" cy="200" r="200" fill="${backgroundColor}"/>
+      <circle cx="200" cy="200" r="190" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="4"/>
+      <text x="200" y="240" text-anchor="middle" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="white">${initials}</text>
+      <text x="200" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="rgba(255,255,255,0.8)">${nationality || 'F1 Driver'}</text>
+    </svg>
+  `;
+  return `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
+}
+
+// Driver photos - Using multiple reliable sources with fallbacks
 export function getDriverImageUrl(driverId: string, givenName?: string, familyName?: string): string {
   // Official F1 driver image pattern
   const getOfficialF1Image = (driverCode: string, teamCode: string = 'fallback') => {
@@ -48,28 +88,153 @@ export function getDriverImageUrl(driverId: string, givenName?: string, familyNa
     'schumacher': { code: 'micsch02', team: 'fallback' },
     'antonelli': { code: 'kimant01', team: 'mercedes' } // 2025 speculation
   };
+
+  // Wikipedia/Wikimedia Commons driver images as reliable fallback
+  const wikipediaDriverImages: Record<string, string> = {
+    // Current drivers
+    'verstappen': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Max_Verstappen_2023_Bahrain_GP.jpg/400px-Max_Verstappen_2023_Bahrain_GP.jpg',
+    'hamilton': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Lewis_Hamilton_2016_Malaysia_2.jpg/400px-Lewis_Hamilton_2016_Malaysia_2.jpg',
+    'leclerc': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Charles_Leclerc_2019_Bahrain.jpg/400px-Charles_Leclerc_2019_Bahrain.jpg',
+    'russell': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/George_Russell_2022_British_GP.jpg/400px-George_Russell_2022_British_GP.jpg',
+    'sainz': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Carlos_Sainz_Jr._2022_Bahrain_GP.jpg/400px-Carlos_Sainz_Jr._2022_Bahrain_GP.jpg',
+    'perez': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Sergio_P%C3%A9rez_2022_Bahrain_GP.jpg/400px-Sergio_P%C3%A9rez_2022_Bahrain_GP.jpg',
+    'norris': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Lando_Norris_2023_Bahrain_GP.jpg/400px-Lando_Norris_2023_Bahrain_GP.jpg',
+    'piastri': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Oscar_Piastri_2023_Bahrain_GP.jpg/400px-Oscar_Piastri_2023_Bahrain_GP.jpg',
+    'alonso': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Fernando_Alonso_2022_Bahrain_GP.jpg/400px-Fernando_Alonso_2022_Bahrain_GP.jpg',
+    'ocon': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Esteban_Ocon_2023_Bahrain_GP.jpg/400px-Esteban_Ocon_2023_Bahrain_GP.jpg',
+    'gasly': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Pierre_Gasly_2023_Bahrain_GP.jpg/400px-Pierre_Gasly_2023_Bahrain_GP.jpg',
+    'stroll': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Lance_Stroll_2023_Bahrain_GP.jpg/400px-Lance_Stroll_2023_Bahrain_GP.jpg',
+    'tsunoda': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Yuki_Tsunoda_2023_Bahrain_GP.jpg/400px-Yuki_Tsunoda_2023_Bahrain_GP.jpg',
+    'albon': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Alexander_Albon_2023_Bahrain_GP.jpg/400px-Alexander_Albon_2023_Bahrain_GP.jpg',
+    'bottas': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Valtteri_Bottas_2023_Bahrain_GP.jpg/400px-Valtteri_Bottas_2023_Bahrain_GP.jpg',
+    'zhou': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Zhou_Guanyu_2023_Bahrain_GP.jpg/400px-Zhou_Guanyu_2023_Bahrain_GP.jpg',
+    'magnussen': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Kevin_Magnussen_2023_Bahrain_GP.jpg/400px-Kevin_Magnussen_2023_Bahrain_GP.jpg',
+    'hulkenberg': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Nico_H%C3%BClkenberg_2023_Bahrain_GP.jpg/400px-Nico_H%C3%BClkenberg_2023_Bahrain_GP.jpg',
+    
+    // Legacy drivers - well-known Wikipedia images
+    'ricciardo': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Daniel_Ricciardo_2022_Bahrain_GP.jpg/400px-Daniel_Ricciardo_2022_Bahrain_GP.jpg',
+    'vettel': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sebastian_Vettel_2019_Canadian_GP.jpg/400px-Sebastian_Vettel_2019_Canadian_GP.jpg',
+    'raikkonen': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Kimi_R%C3%A4ikk%C3%B6nen_2018_Malaysian_GP.jpg/400px-Kimi_R%C3%A4ikk%C3%B6nen_2018_Malaysian_GP.jpg',
+    'schumacher': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Mick_Schumacher_2022_Bahrain_GP.jpg/400px-Mick_Schumacher_2022_Bahrain_GP.jpg',
+  };
+
+// Function to generate driver avatar with initials
+function generateDriverAvatar(givenName?: string, familyName?: string, nationality?: string): string {
+  const initials = [givenName?.[0], familyName?.[0]].filter(Boolean).join('') || '?';
   
-  // Try direct mapping first
+  // Color scheme based on nationality for visual consistency
+  const nationalityColors: Record<string, string> = {
+    'Netherlands': '#FF6B35',
+    'British': '#E63946',
+    'German': '#FFC233',
+    'Spanish': '#FF006E',
+    'Mexican': '#8AC926',
+    'French': '#4895EF',
+    'Canadian': '#F72585',
+    'Australian': '#90E0EF',
+    'Japanese': '#F77F00',
+    'Finnish': '#560BAD',
+    'Danish': '#FB8500',
+    'Thai': '#FFBE0B',
+    'Chinese': '#DC2F02',
+    'American': '#0077B6',
+    'Monégasque': '#F72585',
+    'Italian': '#06D6A0',
+    'Belgian': '#F8961E',
+    'Swiss': '#6A4C93'
+  };
+
+  const backgroundColor = nationalityColors[nationality || ''] || '#6C757D';
+  
+  const svgContent = `
+    <svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="200" cy="200" r="200" fill="${backgroundColor}"/>
+      <circle cx="200" cy="200" r="190" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="4"/>
+      <text x="200" y="240" text-anchor="middle" font-family="Arial, sans-serif" font-size="120" font-weight="bold" fill="white">${initials}</text>
+      <text x="200" y="340" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="rgba(255,255,255,0.8)">${nationality || 'F1 Driver'}</text>
+    </svg>
+  `;
+  return `data:image/svg+xml,${encodeURIComponent(svgContent)}`;
+}
+
+  
+  // Try direct mapping first - Official F1 API
   if (driverMappings[driverId]) {
     const mapping = driverMappings[driverId];
     return getOfficialF1Image(mapping.code, mapping.team);
   }
   
-  // Try family name mapping
+  // Try family name mapping for F1 API
   if (familyName && driverMappings[familyName.toLowerCase()]) {
     const mapping = driverMappings[familyName.toLowerCase()];
     return getOfficialF1Image(mapping.code, mapping.team);
   }
   
-  // Create a generic driver code if we have name info
+  // Wikipedia fallback - more reliable for legacy drivers
+  const wikipediaUrl = getWikipediaImage(driverId, familyName);
+  if (wikipediaUrl) {
+    return wikipediaUrl;
+  }
+  
+  // Create a generic driver code if we have name info for F1 API fallback
   if (givenName && familyName) {
     // Generate a simple code pattern: first 3 letters of given name + first 3 of family name + 01
     const generatedCode = (givenName.substring(0, 3) + familyName.substring(0, 3) + '01').toLowerCase();
     return getOfficialF1Image(generatedCode, 'fallback');
   }
   
-  // Ultimate fallback - return the F1 fallback image
+  // Ultimate fallback - return a static F1 fallback image
   return `https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2025:fallback:driver:2025fallbackdriverright.webp/v1740000000/common/f1/2025/fallback/fallback/2025fallbackfallbackright.webp`;
+}
+
+// Get driver avatar (generated with initials) - used as tertiary fallback
+export function getDriverAvatarUrl(driverId: string, givenName?: string, familyName?: string, nationality?: string): string {
+  return generateDriverAvatar(givenName, familyName, nationality);
+}
+
+// Get Wikipedia image URL for a driver - used as secondary fallback
+export function getWikipediaImage(driverId: string, familyName?: string): string | null {
+  // Wikipedia/Wikimedia Commons driver images as reliable fallback
+  const wikipediaDriverImages: Record<string, string> = {
+    // Current drivers
+    'verstappen': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Max_Verstappen_2023_Bahrain_GP.jpg/400px-Max_Verstappen_2023_Bahrain_GP.jpg',
+    'hamilton': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Lewis_Hamilton_2016_Malaysia_2.jpg/400px-Lewis_Hamilton_2016_Malaysia_2.jpg',
+    'leclerc': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Charles_Leclerc_2019_Bahrain.jpg/400px-Charles_Leclerc_2019_Bahrain.jpg',
+    'russell': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/George_Russell_2022_British_GP.jpg/400px-George_Russell_2022_British_GP.jpg',
+    'sainz': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Carlos_Sainz_Jr._2022_Bahrain_GP.jpg/400px-Carlos_Sainz_Jr._2022_Bahrain_GP.jpg',
+    'perez': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Sergio_P%C3%A9rez_2022_Bahrain_GP.jpg/400px-Sergio_P%C3%A9rez_2022_Bahrain_GP.jpg',
+    'norris': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Lando_Norris_2023_Bahrain_GP.jpg/400px-Lando_Norris_2023_Bahrain_GP.jpg',
+    'piastri': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/25/Oscar_Piastri_2023_Bahrain_GP.jpg/400px-Oscar_Piastri_2023_Bahrain_GP.jpg',
+    'alonso': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Fernando_Alonso_2022_Bahrain_GP.jpg/400px-Fernando_Alonso_2022_Bahrain_GP.jpg',
+    'ocon': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Esteban_Ocon_2023_Bahrain_GP.jpg/400px-Esteban_Ocon_2023_Bahrain_GP.jpg',
+    'gasly': 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Pierre_Gasly_2023_Bahrain_GP.jpg/400px-Pierre_Gasly_2023_Bahrain_GP.jpg',
+    'stroll': 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Lance_Stroll_2023_Bahrain_GP.jpg/400px-Lance_Stroll_2023_Bahrain_GP.jpg',
+    'tsunoda': 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Yuki_Tsunoda_2023_Bahrain_GP.jpg/400px-Yuki_Tsunoda_2023_Bahrain_GP.jpg',
+    'albon': 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Alexander_Albon_2023_Bahrain_GP.jpg/400px-Alexander_Albon_2023_Bahrain_GP.jpg',
+    'bottas': 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/82/Valtteri_Bottas_2023_Bahrain_GP.jpg/400px-Valtteri_Bottas_2023_Bahrain_GP.jpg',
+    'zhou': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Zhou_Guanyu_2023_Bahrain_GP.jpg/400px-Zhou_Guanyu_2023_Bahrain_GP.jpg',
+    'magnussen': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Kevin_Magnussen_2023_Bahrain_GP.jpg/400px-Kevin_Magnussen_2023_Bahrain_GP.jpg',
+    'hulkenberg': 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Nico_H%C3%BClkenberg_2023_Bahrain_GP.jpg/400px-Nico_H%C3%BClkenberg_2023_Bahrain_GP.jpg',
+    
+    // Legacy drivers - well-known Wikipedia images
+    'ricciardo': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Daniel_Ricciardo_2022_Bahrain_GP.jpg/400px-Daniel_Ricciardo_2022_Bahrain_GP.jpg',
+    'vettel': 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Sebastian_Vettel_2019_Canadian_GP.jpg/400px-Sebastian_Vettel_2019_Canadian_GP.jpg',
+    'raikkonen': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Kimi_R%C3%A4ikk%C3%B6nen_2018_Malaysian_GP.jpg/400px-Kimi_R%C3%A4ikk%C3%B6nen_2018_Malaysian_GP.jpg',
+    'schumacher': 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Mick_Schumacher_2022_Bahrain_GP.jpg/400px-Mick_Schumacher_2022_Bahrain_GP.jpg',
+    'sargeant': 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Logan_Sargeant_2023_Bahrain_GP.jpg/400px-Logan_Sargeant_2023_Bahrain_GP.jpg'
+  };
+
+  // Try direct driverId mapping first
+  if (wikipediaDriverImages[driverId]) {
+    return wikipediaDriverImages[driverId];
+  }
+  
+  // Try family name mapping
+  if (familyName && wikipediaDriverImages[familyName.toLowerCase()]) {
+    return wikipediaDriverImages[familyName.toLowerCase()];
+  }
+  
+  return null;
 }
 
 // Circuit images and track maps - Using real track images and reliable sources
@@ -249,6 +414,7 @@ export function getDriverImages(driverId: string, nationality: string, construct
   
   return {
     driver: getDriverImageUrl(driverId, givenName, familyName),
+    driverAvatar: getDriverAvatarUrl(driverId, givenName, familyName, nationality),
     team: constructorId ? getTeamLogoUrl(constructorId) : undefined,
     helmet: `data:image/svg+xml,${encodeURIComponent(helmetSvg)}`
   };
@@ -262,7 +428,7 @@ export function getCircuitImages(circuitId: string, country: string, circuitName
   };
 }
 
-// Enhanced function to check if an image URL is valid and provide fallback
+// Enhanced function to check if an image URL is valid and provide multiple fallbacks
 export function getImageWithFallback(primaryUrl: string, fallbackUrl: string): Promise<string> {
   return new Promise((resolve) => {
     const img = new Image();
@@ -272,5 +438,36 @@ export function getImageWithFallback(primaryUrl: string, fallbackUrl: string): P
     
     // Timeout after 5 seconds
     setTimeout(() => resolve(fallbackUrl), 5000);
+  });
+}
+
+// Enhanced function with multiple fallback levels
+export function getImageWithMultipleFallbacks(
+  primaryUrl: string, 
+  secondaryUrl: string, 
+  tertiaryUrl: string, 
+  ultimateUrl: string
+): Promise<string> {
+  return new Promise((resolve) => {
+    // Try primary URL first
+    const tryPrimary = new Image();
+    tryPrimary.onload = () => resolve(primaryUrl);
+    tryPrimary.onerror = () => {
+      // Try secondary URL (Wikipedia)
+      const trySecondary = new Image();
+      trySecondary.onload = () => resolve(secondaryUrl);
+      trySecondary.onerror = () => {
+        // Try tertiary URL (generated avatar)
+        const tryTertiary = new Image();
+        tryTertiary.onload = () => resolve(tertiaryUrl);
+        tryTertiary.onerror = () => resolve(ultimateUrl);
+        tryTertiary.src = tertiaryUrl;
+      };
+      trySecondary.src = secondaryUrl;
+    };
+    tryPrimary.src = primaryUrl;
+    
+    // Timeout fallback - go to ultimate after 8 seconds
+    setTimeout(() => resolve(ultimateUrl), 8000);
   });
 }

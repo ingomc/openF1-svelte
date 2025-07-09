@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getDriverFlag, formatBirthDate, calculateAge } from './utils';
-  import { getDriverImageUrl, getImageWithFallback } from './f1-images';
+  import { getDriverImageUrl, getDriverAvatarUrl, getImageWithMultipleFallbacks, getWikipediaImage } from './f1-images';
   
   export let drivers: any[] = [];
   export let selectedYear: number;
@@ -14,25 +14,40 @@
     driver.nationality.toLowerCase().includes(searchTerm.toLowerCase())
   );
   
-  // Function to get driver image with caching and fallback
-  async function getDriverImage(driverId: string, givenName: string, familyName: string): Promise<string> {
+  // Function to get driver image with enhanced multi-tier fallback system
+  async function getDriverImage(driverId: string, givenName: string, familyName: string, nationality?: string): Promise<string> {
     const cacheKey = `${driverId}-${givenName}-${familyName}`;
     
     if (imageCache.has(cacheKey)) {
       return imageCache.get(cacheKey)!;
     }
     
+    // Tier 1: Official F1 API
     const primaryUrl = getDriverImageUrl(driverId, givenName, familyName);
-    const fallbackUrl = getDriverImageUrl('default', givenName, familyName);
+    
+    // Tier 2: Wikipedia/Wikimedia Commons
+    const secondaryUrl = getWikipediaImage(driverId, familyName);
+    
+    // Tier 3: Generated avatar with initials
+    const tertiaryUrl = getDriverAvatarUrl(driverId, givenName, familyName, nationality);
+    
+    // Tier 4: Ultimate fallback - static placeholder
+    const ultimateUrl = getDriverImageUrl('fallback', givenName, familyName);
     
     try {
-      const finalUrl = await getImageWithFallback(primaryUrl, fallbackUrl);
+      const finalUrl = await getImageWithMultipleFallbacks(
+        primaryUrl, 
+        secondaryUrl || tertiaryUrl, 
+        tertiaryUrl, 
+        ultimateUrl
+      );
       imageCache.set(cacheKey, finalUrl);
       return finalUrl;
     } catch {
-      const defaultUrl = getDriverImageUrl('fallback', givenName, familyName);
-      imageCache.set(cacheKey, defaultUrl);
-      return defaultUrl;
+      // Fallback to generated avatar in case of complete failure
+      const avatarUrl = getDriverAvatarUrl(driverId, givenName, familyName, nationality);
+      imageCache.set(cacheKey, avatarUrl);
+      return avatarUrl;
     }
   }
 </script>
@@ -57,7 +72,7 @@
         {#each filteredDrivers as driver}
           <div class="driver-card">
             <div class="driver-image">
-              {#await getDriverImage(driver.driverId, driver.givenName, driver.familyName)}
+              {#await getDriverImage(driver.driverId, driver.givenName, driver.familyName, driver.nationality)}
                 <div class="image-loading">
                   <div class="loading-spinner"></div>
                 </div>
@@ -70,14 +85,19 @@
                   on:error={(e) => {
                     const target = e.target as HTMLImageElement;
                     if (target) {
-                      target.src = getDriverImageUrl('fallback', driver.givenName, driver.familyName);
+                      // Use generated avatar as ultimate fallback for image errors
+                      target.src = getDriverAvatarUrl(driver.driverId, driver.givenName, driver.familyName, driver.nationality);
                     }
                   }}
                 />
               {:catch}
-                <div class="image-error">
-                  <span class="error-icon">👤</span>
-                  <span class="error-text">Foto nicht verfügbar</span>
+                <div class="image-fallback">
+                  <img 
+                    src={getDriverAvatarUrl(driver.driverId, driver.givenName, driver.familyName, driver.nationality)}
+                    alt="{driver.givenName} {driver.familyName}"
+                    class="driver-photo"
+                    loading="lazy"
+                  />
                 </div>
               {/await}
               <div class="driver-number-overlay">#{driver.permanentNumber || driver.code || '?'}</div>
@@ -334,9 +354,9 @@
     text-align: center;
   }
   
-  /* Image loading and error states */
+  /* Image loading and fallback states */
   .image-loading,
-  .image-error {
+  .image-fallback {
     width: 100%;
     height: 280px;
     display: flex;
@@ -346,6 +366,17 @@
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border-radius: 12px;
     color: #6c757d;
+  }
+  
+  .image-fallback {
+    height: 200px;
+    background: transparent;
+  }
+  
+  .image-fallback .driver-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
   
   .loading-spinner {
@@ -360,17 +391,6 @@
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
-  }
-  
-  .error-icon {
-    font-size: 48px;
-    margin-bottom: 8px;
-    opacity: 0.5;
-  }
-  
-  .error-text {
-    font-size: 12px;
-    opacity: 0.7;
   }
   
   @media (max-width: 768px) {
