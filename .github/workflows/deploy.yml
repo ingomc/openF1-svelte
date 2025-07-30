@@ -34,7 +34,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          BASE: '/openF1-svelte/'
+          VITE_BASE_PATH: '/openF1-svelte/'
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
